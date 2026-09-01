@@ -86,6 +86,9 @@ button:focus-visible{outline:2px solid var(--gold-bright);outline-offset:5px}
 .show-intro.gone{opacity:0}
 .show-top{position:absolute;top:max(18px,env(safe-area-inset-top));left:max(18px,env(safe-area-inset-left));right:max(18px,env(safe-area-inset-right));z-index:6;display:flex;align-items:center;justify-content:space-between}
 .show-label{color:rgba(255,248,234,.72);font-size:10px;font-weight:650;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.lyrics{position:absolute;left:50%;bottom:max(24px,calc(env(safe-area-inset-bottom) + 14px));z-index:7;width:min(90vw,760px);display:flex;justify-content:center;transform:translateX(-50%);pointer-events:none}
+.lyrics-text{display:inline-block;max-width:100%;padding:10px 18px 11px;border:1px solid rgba(255,255,255,.16);border-radius:16px;color:#fff;background:rgba(3,7,12,.68);box-shadow:0 8px 32px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font-size:clamp(15px,2.1vw,20px);font-weight:700;line-height:1.3;letter-spacing:.005em;text-align:center;text-wrap:balance;text-shadow:0 2px 8px rgba(0,0,0,.8);opacity:0;transform:translateY(10px) scale(.97);transition:opacity .26s ease,transform .38s var(--ease)}
+.lyrics.visible .lyrics-text{opacity:1;transform:translateY(0) scale(1)}
 .mute-btn{width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(255,248,234,.3);border-radius:50%;background:rgba(3,5,7,.34);color:var(--cream);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;transition:background .2s ease,transform .2s ease}
 .mute-btn:hover{background:rgba(3,5,7,.58)}
 .mute-btn:active{transform:scale(.94)}
@@ -155,6 +158,8 @@ to{opacity:1;transform:scale(1)}
 .slide::before{filter:blur(22px) saturate(.9) brightness(.38)}
 .photo-frame{width:100vw;height:100dvh;border-radius:0;box-shadow:none}
 .photo-frame img{object-fit:cover}
+.lyrics{width:94vw;bottom:max(18px,calc(env(safe-area-inset-bottom) + 10px))}
+.lyrics-text{padding:9px 14px 10px;border-radius:14px;font-size:clamp(14px,4vw,17px);line-height:1.28}
 .finale-card{border-radius:26px}
 }
 
@@ -177,13 +182,40 @@ to{opacity:1;transform:scale(1)}
 <main>
 <section id="countdown-stage" class="stage" aria-labelledby="countdown-title"><div class="countdown-shell"><div class="halo" aria-hidden="true"></div><button class="date-chip" id="secretTrigger" type="button">Le 7 octobre</button><p class="kicker">Une petite surprise attend son heure</p><h1 class="title" id="countdown-title">Il se trame quelque chose pour <em>Moumix</em></h1><div class="ornament" aria-hidden="true"><span>✦</span></div><div class="timer" role="timer" aria-label="Temps restant avant la surprise"><div class="time-card"><span class="num" id="d">00</span><span class="label">Jours</span></div><div class="time-card"><span class="num" id="h">00</span><span class="label">Heures</span></div><div class="time-card"><span class="num" id="m">00</span><span class="label">Minutes</span></div><div class="time-card"><span class="num" id="s">00</span><span class="label">Secondes</span></div></div><p class="tease">On ne joue pas à « tue-moi » en attendant. Patience, Moumignonne.</p></div></section>
 <section id="play-stage" class="stage hidden" aria-labelledby="play-title"><div class="play-content"><p class="kicker">C'est l'heure</p><h1 class="title" id="play-title">Joyeux anniversaire, <em>Moumix</em>.</h1><div class="play-orbit"><button class="play-btn" id="playBtn" type="button" aria-label="Lancer la surprise"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4.8 19.5 12 7 19.2V4.8Z" fill="currentColor"/></svg></button></div><p class="play-caption">Appuie. Monte le son. Regarde.</p></div></section>
-<section id="show-stage" class="stage hidden" aria-label="La surprise"><div id="slides"></div><div class="show-intro" id="showIntro">Pour toi.</div><div class="vignette"></div><div class="show-top"><span class="show-label">Joyeux anniversaire, Moumix</span><button class="mute-btn" id="muteBtn" type="button" aria-label="Couper le son" aria-pressed="false"></button></div><div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div><audio id="audio" src="audio/annivmoumix.mp3" preload="auto"></audio></section>
+<section id="show-stage" class="stage hidden" aria-label="La surprise"><div id="slides"></div><div class="show-intro" id="showIntro">Pour toi.</div><div class="vignette"></div><div class="show-top"><span class="show-label">Joyeux anniversaire, Moumix</span><button class="mute-btn" id="muteBtn" type="button" aria-label="Couper le son" aria-pressed="false"></button></div><div class="lyrics" id="lyrics" aria-live="polite"><p class="lyrics-text" id="lyricsText"></p></div><div class="progress-wrap" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div><audio id="audio" src="audio/annivmoumix.mp3" preload="auto"></audio></section>
 <section id="finale-stage" class="stage hidden" aria-labelledby="finale-title"><div class="finale-card"><div class="finale-heart" aria-hidden="true">♥</div><h1 class="finale-title" id="finale-title">Joyeux anniversaire, Moumix</h1><p class="finale-line">Le programme est lancé.</p><p class="finale-line">Reste plus qu'à te laisser faire.</p><button class="replay" id="replayBtn" type="button">Revoir la surprise</button></div></section>
 </main>
 <script>
 /* CONFIG : date locale et minutage des photos. */
 const TARGET_DATE=new Date(new Date().getFullYear(),9,7,0,0,0);
 const SLIDES=[{t:5,src:'images/tech.jpg'},{t:14,src:'images/dauphin.jpg'},{t:16,src:'images/dauphin_plante.jpg'},{t:19,src:'images/dauphin_cuisine.jpg'},{t:22,src:'images/dauphin_lave_vaisselle.jpg'},{t:24,src:'images/dauphin_bricolage.jpg'},{t:26,src:'images/dauphin_mal_alpha.jpg'},{t:30,src:'images/dauphin_truite.jpg'},{t:33,src:'images/bord_de_seine.jpg'},{t:36,src:'images/balade.jpg'},{t:39,src:'images/chateau.jpg'},{t:45,src:'images/embrasser.jpg'},{t:46,src:'images/twerk.jpg'},{t:53,src:'images/dauphin_papa.jpg'},{t:59,src:'images/joyeux_anniversaire.jpg'}];
+const LYRICS=[
+  {start:.4,end:2,text:'Tu as cru quoi ?'},
+  {start:2,end:4.9,text:"Que j’allais faire un questionnaire ?"},
+  {start:5,end:7.7,text:'Ici, le chef de la technologie !'},
+  {start:7.7,end:10.3,text:"Ah ah ah ! C’est le Petit Porcelet !"},
+  {start:10.3,end:14,text:"Tu crois que c’est toi le chef, maintenant ?"},
+  {start:14,end:16,text:"Ici, c’est les dauphins. Nique les mâles alpha."},
+  {start:16,end:19,text:"C’est nous les chefs des plantes. Y a quoi ? Tu vas faire quoi ?"},
+  {start:19,end:22,text:'Ici, ça fait la cuisine,'},
+  {start:22,end:24,text:'ça remplit le lave-vaisselle'},
+  {start:24,end:26,text:'et ça fait du bricolage.'},
+  {start:26,end:29,text:'On ne va pas à la salle de sport pour sucer des bites.'},
+  {start:29,end:30.8,text:'Quand je dors, je ne ronfle même pas.'},
+  {start:30.8,end:33,text:'Alors que toi, quand tu dors, tu fais la truite.'},
+  {start:33,end:36,text:"Je t’invite dans un restaurant : « Bord de Seine », pas McDonald’s."},
+  {start:36,end:39,text:'Mais on ira aussi se balader comme des thugs'},
+  {start:39,end:41.2,text:'au château de La Roche-Guyon.'},
+  {start:41.2,end:42.3,text:'Alors parle BIEN.'},
+  {start:42.3,end:43.4,text:"C’est pas des LOL."},
+  {start:43.4,end:45,text:'On ira se balader et tu auras ta dose de sucré-salé.'},
+  {start:45,end:46.3,text:'On pourra moumiser, se tenir la main…'},
+  {start:46.3,end:53,text:'Et pas la peine de twerker avec ton dos.'},
+  {start:53,end:56,text:'Joyeux anniversaire de la part de Moumi,'},
+  {start:56,end:59,text:"aka l’enfant préféré du papa de Moumix,"},
+  {start:59,end:62,text:'grâce à sa grosse télé…'},
+  {start:62,end:65.8,text:'et pas sa GROSSE BITE.'}
+];
 const ICON_SOUND='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4H4Z" fill="currentColor"/><path d="M16 9a4.2 4.2 0 0 1 0 6M18.5 6.5a7.8 7.8 0 0 1 0 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
 const ICON_MUTED='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5v5h4l5 4v-13l-5 4H4Z" fill="currentColor"/><path d="m16.5 9 4 6m0-6-4 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
 /* Fond étoilé haute définition. */
@@ -214,13 +246,14 @@ function tick(){const diff=TARGET_DATE.getTime()-Date.now();if(diff<=0){clearInt
 let secretClicks=0,secretTimer;document.getElementById('secretTrigger').addEventListener('click',()=>{secretClicks+=1;clearTimeout(secretTimer);secretTimer=setTimeout(()=>{secretClicks=0},1200);if(secretClicks>=5){secretClicks=0;clearInterval(countdownInterval);revealStage(playStage)}});
 /* Diaporama. */
 const slidesContainer=document.getElementById('slides');SLIDES.forEach((slide,index)=>{const wrapper=document.createElement('div');wrapper.className='slide';wrapper.dataset.index=index;wrapper.style.setProperty('--slide-image',`url("${slide.src}")`);const frame=document.createElement('div');frame.className='photo-frame';const image=document.createElement('img');image.src=slide.src;image.alt='';image.draggable=false;if(index>1)image.loading='lazy';frame.appendChild(image);wrapper.appendChild(frame);slidesContainer.appendChild(wrapper)});
-const slideEls=Array.from(slidesContainer.children),audio=document.getElementById('audio'),progressBar=document.getElementById('progressBar'),muteBtn=document.getElementById('muteBtn'),showIntro=document.getElementById('showIntro');let activeSlide=-2,progressFrame;muteBtn.innerHTML=ICON_SOUND;
+const slideEls=Array.from(slidesContainer.children),audio=document.getElementById('audio'),progressBar=document.getElementById('progressBar'),muteBtn=document.getElementById('muteBtn'),showIntro=document.getElementById('showIntro'),lyrics=document.getElementById('lyrics'),lyricsText=document.getElementById('lyricsText');let activeSlide=-2,activeLyric=-2,progressFrame;muteBtn.innerHTML=ICON_SOUND;
 function updateSlideForTime(time){let nextIndex=-1;for(let index=0;index<SLIDES.length;index+=1)if(time>=SLIDES[index].t)nextIndex=index;showIntro.classList.toggle('gone',nextIndex>=0);if(nextIndex===activeSlide)return;activeSlide=nextIndex;slideEls.forEach((element,index)=>element.classList.toggle('active',index===activeSlide))}
-function updatePlayback(){updateSlideForTime(audio.currentTime);if(Number.isFinite(audio.duration)&&audio.duration>0)progressBar.style.width=`${audio.currentTime/audio.duration*100}%`;if(!audio.paused&&!audio.ended)progressFrame=requestAnimationFrame(updatePlayback)}
-audio.addEventListener('play',()=>{cancelAnimationFrame(progressFrame);updatePlayback()});audio.addEventListener('seeked',()=>updateSlideForTime(audio.currentTime));audio.addEventListener('ended',()=>{cancelAnimationFrame(progressFrame);revealStage(finaleStage)});
+function updateLyricsForTime(time){const nextIndex=LYRICS.findIndex(cue=>time>=cue.start&&time<cue.end);if(nextIndex===activeLyric)return;activeLyric=nextIndex;lyrics.classList.remove('visible');if(nextIndex<0){lyricsText.textContent='';return}lyricsText.textContent=LYRICS[nextIndex].text;void lyrics.offsetWidth;lyrics.classList.add('visible')}
+function updatePlayback(){updateSlideForTime(audio.currentTime);updateLyricsForTime(audio.currentTime);if(Number.isFinite(audio.duration)&&audio.duration>0)progressBar.style.width=`${audio.currentTime/audio.duration*100}%`;if(!audio.paused&&!audio.ended)progressFrame=requestAnimationFrame(updatePlayback)}
+audio.addEventListener('play',()=>{cancelAnimationFrame(progressFrame);updatePlayback()});audio.addEventListener('seeked',()=>{updateSlideForTime(audio.currentTime);updateLyricsForTime(audio.currentTime)});audio.addEventListener('ended',()=>{cancelAnimationFrame(progressFrame);lyrics.classList.remove('visible');revealStage(finaleStage)});
 muteBtn.addEventListener('click',()=>{audio.muted=!audio.muted;muteBtn.innerHTML=audio.muted?ICON_MUTED:ICON_SOUND;muteBtn.setAttribute('aria-label',audio.muted?'Rétablir le son':'Couper le son');muteBtn.setAttribute('aria-pressed',String(audio.muted))});
 document.addEventListener('pointerdown',event=>{if(event.target.closest('button'))burstConfetti(event.clientX,event.clientY,22,.5)},{passive:true});
-document.getElementById('playBtn').addEventListener('click',async event=>{const rect=event.currentTarget.getBoundingClientRect();burstConfetti(rect.left+rect.width/2,rect.top+rect.height/2,170,1.05);activeSlide=-2;slideEls.forEach(element=>element.classList.remove('active'));showIntro.classList.remove('gone');progressBar.style.width='0%';audio.currentTime=0;revealStage(showStage);try{await audio.play()}catch(error){revealStage(playStage)}});
+document.getElementById('playBtn').addEventListener('click',async event=>{const rect=event.currentTarget.getBoundingClientRect();burstConfetti(rect.left+rect.width/2,rect.top+rect.height/2,170,1.05);activeSlide=-2;activeLyric=-2;slideEls.forEach(element=>element.classList.remove('active'));showIntro.classList.remove('gone');lyrics.classList.remove('visible');lyricsText.textContent='';progressBar.style.width='0%';audio.currentTime=0;revealStage(showStage);try{await audio.play()}catch(error){revealStage(playStage)}});
 document.getElementById('replayBtn').addEventListener('click',()=>{audio.currentTime=0;progressBar.style.width='0%';revealStage(playStage)});
 </script>
 </body>
